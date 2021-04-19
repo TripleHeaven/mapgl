@@ -1,10 +1,12 @@
 import "mapbox-gl/dist/mapbox-gl.css";
 import "react-map-gl-geocoder/dist/mapbox-gl-geocoder.css";
 import React, { Component } from "react";
-import MapGL, { GeolocateControl } from "react-map-gl";
+import MapGL, { GeolocateControl, Marker } from "react-map-gl";
 // import DeckGL, { GeoJsonLayer } from "deck.gl";
 import Geocoder from "react-map-gl-geocoder";
 import { useRef, useState } from "react";
+import UilReact from "@iconscout/react-unicons/icons/uil-react";
+
 import DeckGL, { GeoJsonLayer } from "deck.gl";
 const token = process.env.REACT_APP_TOKEN;
 
@@ -19,7 +21,7 @@ export default function Map() {
     viewport: {
       latitude: 0,
       longitude: 0,
-      zoom: 1,
+      zoom: 6,
     },
     searchResultLayer: null,
   });
@@ -27,9 +29,9 @@ export default function Map() {
 
   const handleViewportChange = (viewport) => {
     console.log("test");
-    console.log(viewport);
+    console.log(viewport.longitude);
     setState({
-      viewport: viewport,
+      viewport: { ...state.viewport, ...viewport },
     });
   };
   const geolocateStyle = {
@@ -38,13 +40,13 @@ export default function Map() {
     padding: "10px",
   };
   // if you are happy with Geocoder default settings, you can just use handleViewportChange directly
-  const handleGeocoderViewportChange = (viewport) => {
+  const handleGeocoderViewportChange = (newviewport) => {
     const geocoderDefaultOverrides = { transitionDuration: 1000 };
 
     return handleViewportChange({
       //   ...state.viewport,
-      viewport,
-      //   ...geocoderDefaultOverrides,
+      ...newviewport,
+      ...geocoderDefaultOverrides,
     });
   };
 
@@ -69,8 +71,8 @@ export default function Map() {
       <MapGL
         ref={mapRef}
         {...state.viewport}
-        // mapStyle={handleThemeView(themeState)}
-        mapStyle={"mapbox://styles/mapbox/dark-v8"}
+        mapStyle={handleThemeView(themeState)}
+        // mapStyle={"mapbox://styles/mapbox/dark-v8"}
         width="100%"
         height="110%"
         onViewportChange={handleViewportChange}
@@ -78,7 +80,7 @@ export default function Map() {
       >
         <Geocoder
           mapRef={mapRef}
-          onResult={handleOnResult}
+          // onResult={handleOnResult}
           onViewportChange={handleGeocoderViewportChange}
           mapboxApiAccessToken={token}
           position="top-right"
@@ -88,13 +90,19 @@ export default function Map() {
           positionOptions={{ enableHighAccuracy: true }}
           trackUserLocation={true}
         />
+        <Marker
+          longitude={state.viewport.longitude}
+          latitude={state.viewport.latitude}
+        >
+          <UilReact></UilReact>
+        </Marker>
       </MapGL>
-      {/* <button
+      <button
         onClick={() => setThemeState(!themeState)}
         style={{ position: "absolute" }}
       >
         Theme
-      </button> */}
+      </button>
       {/* <DeckGL {...state.viewport} layers={[state.searchResultLayer]} /> */}
     </div>
   );
